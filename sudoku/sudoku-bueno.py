@@ -1,6 +1,6 @@
 import time
 import copy
-from random import choice,randint
+from random import choice,randint,shuffle
 from typing import Tuple,List
 sudoku_puzzle = [
     [5, 3, 0, 0, 7, 0, 0, 0, 0],
@@ -15,7 +15,7 @@ sudoku_puzzle = [
 ]
 
 sudoku_puzzle2 = [
-    [6, 0, 1, 0, 7, 0, 4, 0, 8],
+    [0, 0, 1, 0, 7, 0, 4, 0, 8],
     [0, 0, 0, 3, 0, 5, 0, 0, 0],
     [0, 7, 0, 1, 0, 8, 0, 5, 0],
     [1, 0, 5, 0, 0, 0, 3, 0, 4],
@@ -27,15 +27,15 @@ sudoku_puzzle2 = [
 ]
 
 sudoku_puzzle3 = [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 8, 0, 1, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 4, 3, 0],
+    [5, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 7, 0, 8, 0, 0],
+    [0, 0, 0, 0, 0, 0, 1, 0, 0],
+    [0, 2, 0, 0, 3, 0, 0, 0, 0],
+    [6, 0, 0, 0, 0, 0, 0, 7, 5],
+    [0, 0, 3, 4, 0, 0, 0, 0, 0],
+    [0, 0, 0, 2, 0, 0, 6, 0, 0],
 ]
 
 
@@ -101,12 +101,10 @@ class SudokuSolver :
     def solve(self) :
         if self.is_solved() :
             return self.solution
-
         cell = self.cell_with_least_possibilities()
         if not cell : 
             return None
         x, y = cell
-
         for i in range (1,10) :
             if self.can_place_number(x,y,i) :
                 sol = self.solution.copy()
@@ -133,7 +131,7 @@ class SudokuSolver :
     def is_trivial(self, x : int, y : int) :
         return count_possibilities(self.possibilities[x][y]) == 1 and not self.solution[x][y]
 
-def random_sudoku() -> List[List[int]] :
+def random_filled_sudoku() -> List[List[int]] :
     generated_sudoku = [ [0 for i in range(SIZE)] for j in range (SIZE) ] 
     cells = [ (i,j) for i in range(SIZE) for j in range (SIZE) ] 
     solver = SudokuSolver()
@@ -146,8 +144,29 @@ def random_sudoku() -> List[List[int]] :
             cells.pop(cells.index(cell))
         else : 
             generated_sudoku[x][y] = EMPTY
-
     return generated_sudoku
 
-solver = SudokuSolver(sudoku_puzzle2)
-print(random_sudoku())
+def random_sudoku(sudoku, level) :
+    cells = [ (i,j) for i in range(SIZE) for j in range (SIZE) ] 
+    shuffle(cells)
+    solver = SudokuSolver()
+    count = 0
+    while cells and level > 0:
+        level -= 1
+        x, y = cells.pop()
+        prev = sudoku[x][y]
+        sudoku[x][y] = EMPTY
+        solver.new_board(sudoku)
+        if not solver.solve() :
+            level += 1
+            sudoku[x][y] = prev
+    return sudoku
+
+def count_filled(list) :
+    count = 0 
+    for i in range (SIZE) :
+        for j in range (SIZE) :
+            if list[i][j] != EMPTY :
+                count += 1
+    return count
+
