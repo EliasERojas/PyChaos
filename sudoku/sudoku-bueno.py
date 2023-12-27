@@ -1,4 +1,6 @@
 import time
+import copy
+from random import choice,randint
 from typing import Tuple,List
 sudoku_puzzle = [
     [5, 3, 0, 0, 7, 0, 0, 0, 0],
@@ -24,6 +26,19 @@ sudoku_puzzle2 = [
     [2, 0, 7, 0, 1, 0, 8, 0, 0],
 ]
 
+sudoku_puzzle3 = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+]
+
+
 COUNT = 2
 SIZE = 9
 EMPTY = 0
@@ -37,7 +52,13 @@ def count_possibilities(possibilities_list : List[bool]) :
 
 
 class SudokuSolver : 
-    def __init__(self, sudoku : List[List[int]]):
+    def __init__(self, sudoku : List[List[int]] = None):
+        self.possibilities = None
+        self.solution = None
+        if sudoku :
+            self.new_board(sudoku)
+
+    def new_board(self, sudoku : List[List[int]]) :
         self.possibilities = [[[ True for i in range(SIZE) ] for j in range(SIZE) ] for k in range(SIZE)]
         self.solution = [[ EMPTY for i in range(SIZE) ] for j in range(SIZE) ]
         for i in range(SIZE) : 
@@ -45,7 +66,7 @@ class SudokuSolver :
                 cell_value = sudoku[i][j]
                 if cell_value != EMPTY :
                     self.place_number(i,j, cell_value)
-    
+
     def place_number(self, x : int, y : int, val : int) :
         self.solution[x][y] = val
         for i in range(SIZE) : 
@@ -76,7 +97,7 @@ class SudokuSolver :
                 if count_possibilities(self.possibilities[i][j]) > 0 :
                     return False
         return True
-                    
+
     def solve(self) :
         if self.is_solved() :
             return self.solution
@@ -112,6 +133,21 @@ class SudokuSolver :
     def is_trivial(self, x : int, y : int) :
         return count_possibilities(self.possibilities[x][y]) == 1 and not self.solution[x][y]
 
+def random_sudoku() -> List[List[int]] :
+    generated_sudoku = [ [0 for i in range(SIZE)] for j in range (SIZE) ] 
+    cells = [ (i,j) for i in range(SIZE) for j in range (SIZE) ] 
+    solver = SudokuSolver()
+    while cells :
+        cell = choice(cells)
+        x, y = cell
+        generated_sudoku[x][y] = randint(1,9)
+        solver.new_board(generated_sudoku)
+        if solver.solve() : 
+            cells.pop(cells.index(cell))
+        else : 
+            generated_sudoku[x][y] = EMPTY
+
+    return generated_sudoku
 
 solver = SudokuSolver(sudoku_puzzle2)
-print(solver.solve())
+print(random_sudoku())
