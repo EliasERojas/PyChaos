@@ -12,6 +12,19 @@ sudoku_puzzle = [
     [0, 0, 0, 0, 8, 0, 0, 7, 9]
 ]
 
+sudoku_puzzle2 = [
+    [6, 0, 1, 0, 7, 0, 4, 0, 8],
+    [0, 0, 0, 3, 0, 5, 0, 0, 0],
+    [0, 7, 0, 1, 0, 8, 0, 5, 0],
+    [1, 0, 5, 0, 0, 0, 3, 0, 4],
+    [7, 0, 0, 0, 0, 0, 0, 0, 1],
+    [9, 0, 4, 0, 0, 0, 6, 0, 9],
+    [0, 1, 0, 2, 0, 4, 0, 6, 0],
+    [0, 0, 0, 6, 0, 7, 0, 0, 0],
+    [2, 0, 7, 0, 1, 0, 8, 0, 0],
+]
+
+
 SIZE=9
 EMPTY=0
 FILLED=1
@@ -20,8 +33,8 @@ COL=False
 
 class SudokuSolver :
     def __init__(self, starter : List[List[int]]) :
-        self.solution =  
-        self.bitmap = 
+        self._board = starter
+        self._empty_cells = []
         self.set_empty_cells()
 
     @property
@@ -84,3 +97,6 @@ class SudokuSolver :
 
         return False
 
+solver = SudokuSolver(sudoku_puzzle2)
+solver.solve()
+print(sudoku_puzzle2)
