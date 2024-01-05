@@ -1,1 +1,2 @@
-# python_games
+# PyChaos
+repository that has mixed python scripts.

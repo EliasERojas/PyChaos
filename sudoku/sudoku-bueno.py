@@ -5,7 +5,7 @@ from random import choice,randint,shuffle
 from typing import Tuple,List
 
 sudoku6 = [
-    [0, 0, 0, 0, 0, 0, 0, 1, 3],
+    [1, 0, 0, 0, 0, 0, 0, 1, 3],
     [0, 4, 0, 0, 0, 0, 0, 8, 0],
     [2, 0, 0, 0, 6, 0, 0, 0, 0],
     [9, 0, 6, 0, 0, 0, 4, 0, 0],
@@ -53,7 +53,7 @@ sudoku_puzzle2 = [
 ]
 
 sudoku_puzzle3 = [
-    [0, 0, 0, 8, 0, 1, 0, 0, 0],
+    [1, 0, 0, 8, 0, 1, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 4, 3, 0],
     [5, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 7, 0, 8, 0, 0],
@@ -167,14 +167,11 @@ class SudokuSolver :
         return (row,col)
 
     def solve(self) :
-        before = 0
-        after = 1
-        while (after - before) > 0 : 
-            before = self.placed
+        before = -1
+        while (self.placed - before) > 0 : 
             self.trivial_moves()
             self.boxes_single_possibility()
             self.place_single_possibility()
-            after = self.placed
 
         if self.placed < 81 :
             if self.brute_force() : 
@@ -188,7 +185,6 @@ class SudokuSolver :
         for val in range (1,10) :
             bit = bitval[val]
             if self.possibilities[x][y] & bit > 0 :
-                start = time()
                 sol_copy = deepcopy(self.solution)
                 pos_copy = deepcopy(self.possibilities)
                 placed_copy = self.placed
@@ -199,6 +195,25 @@ class SudokuSolver :
                 self.possibilities = pos_copy
                 self.solution = sol_copy
                 self.placed = placed_copy
+        return False
+
+    def brute_force2(self) :
+        for i in range(SIZE) :
+            for j in range (SIZE) :
+                for val in range(1,10) :
+                    bit = bitval[val]
+                    if (self.possibilities[i][j] & bit) > 0 :
+                        sol_copy = deepcopy(self.solution)
+                        pos_copy = deepcopy(self.possibilities)
+                        placed_copy = self.placed
+                        self.place_number(i,j,val)
+                        self.solve()
+                        if self.placed == 81 :
+                            return True
+                        self.possibilities = pos_copy
+                        self.solution = sol_copy
+                        self.placed = placed_copy
+                    return False
         return False
 
     def least_possibilities_cell(self) :
@@ -219,7 +234,6 @@ class SudokuSolver :
         for i in range(SIZE) :
             for j in range(SIZE) :
                 if count_bits(self.possibilities[i][j]) == 1 :
-                    changed = True
                     self.set_trivial(i,j)
 
     def set_trivial(self, x, y) :
@@ -231,8 +245,7 @@ class SudokuSolver :
         self.place_number(x, y, num)
 
 start = time()
-solver = SudokuSolver(sudoku_puzzle3)
-solver.solve()
-print(solver.solution)
+solver = SudokuSolver(sudoku6)
+print(solver.solve())
 end = time()
 print(end - start)
